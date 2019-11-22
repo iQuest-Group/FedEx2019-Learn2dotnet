@@ -4,26 +4,29 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Learn2DotNet.Hub.Domain;
+using Learn2DotNet.Hub.Domain.Models;
 
 namespace Learn2DotNet.Hub.Application
 {
-    public class PairingUseCase
+    public class SocketClient
     {
-        private const string localHost = "127.0.0.1";
         private static ManualResetEvent connectDone = new ManualResetEvent(false);
         private static ManualResetEvent sendDone = new ManualResetEvent(false);
         private static ManualResetEvent receiveDone = new ManualResetEvent(false);
         private static string response = string.Empty;
+
+        public event EventHandler DevicesChanged;
 
         public void Start()
         {
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[0];
 
-            //for (int port = 16000; port <= 16000; port++)
-            
-                Task task = Task.Run(() => SendToDevice(ipAddress, 16000));
-            
+            //for (int port = 16000; port < 16100; port++)
+
+            Task task = Task.Run(() => SendToDevice(ipAddress, 16000));
+
         }
 
         private void SendToDevice(IPAddress ipAddress, int port)
@@ -40,7 +43,16 @@ namespace Learn2DotNet.Hub.Application
 
             Receive(client);
             receiveDone.WaitOne();
-            
+
+            // Add the new device in repo
+            DeviceRepository repository = new DeviceRepository();
+            repository.Add(new Device
+            {
+                Name = "new device"
+            });
+
+            OnDevicesChanged();
+
             client.Shutdown(SocketShutdown.Both);
             client.Close();
         }
@@ -92,6 +104,11 @@ namespace Learn2DotNet.Hub.Application
             Socket client = (Socket)ar.AsyncState;
             int bytesSent = client.EndSend(ar);
             sendDone.Set();
+        }
+
+        protected virtual void OnDevicesChanged()
+        {
+            DevicesChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 

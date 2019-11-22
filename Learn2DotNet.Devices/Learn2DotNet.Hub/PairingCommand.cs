@@ -13,8 +13,15 @@ namespace Learn2DotNet.Hub
 
         public void Execute(object parameter)
         {
-            var pairing = new PairingUseCase();
+            SocketClient pairing = new SocketClient();
+            pairing.DevicesChanged += HandleDevicesChanged;
             pairing.Start();
+        }
+
+        private void HandleDevicesChanged(object sender, EventArgs e)
+        {
+            App app = System.Windows.Application.Current as App;
+            app.AnnounceDevicesChanged();
         }
 
         public event EventHandler CanExecuteChanged;

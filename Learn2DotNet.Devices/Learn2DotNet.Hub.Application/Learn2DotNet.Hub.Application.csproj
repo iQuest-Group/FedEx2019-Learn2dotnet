@@ -4,4 +4,8 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Learn2DotNet.Hub.Domain\Learn2DotNet.Hub.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
