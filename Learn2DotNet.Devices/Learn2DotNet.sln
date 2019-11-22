@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29509.3
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn2DotNet.Devices", "Learn2DotNet.Devices\Learn2DotNet.Devices.csproj", "{8B0FBCCA-0691-4148-9186-44783E3B7420}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Learn2DotNet.Devices", "Learn2DotNet.Devices\Learn2DotNet.Devices.csproj", "{8B0FBCCA-0691-4148-9186-44783E3B7420}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn2DotNet.Hub", "Learn2DotNet.Hub\Learn2DotNet.Hub.csproj", "{DB7EAD41-E05C-4DC7-90A2-36CB008EAD70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Learn2DotNet.Hub", "Learn2DotNet.Hub\Learn2DotNet.Hub.csproj", "{DB7EAD41-E05C-4DC7-90A2-36CB008EAD70}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hub", "Hub", "{F362198C-AAE1-4CDB-81E5-507E018804C5}"
 EndProject
@@ -28,6 +28,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8B0FBCCA-0691-4148-9186-44783E3B7420} = {51623B07-A064-4D58-938A-EA8AA656770B}
+		{DB7EAD41-E05C-4DC7-90A2-36CB008EAD70} = {F362198C-AAE1-4CDB-81E5-507E018804C5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0EDBF48A-E690-4FDB-8DF9-1BEAEB7F932F}
