@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn2DotNet.Devices", "Lea
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Learn2DotNet.Hub", "Learn2DotNet.Hub\Learn2DotNet.Hub.csproj", "{DB7EAD41-E05C-4DC7-90A2-36CB008EAD70}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Hub", "Hub", "{F362198C-AAE1-4CDB-81E5-507E018804C5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Devices", "Devices", "{51623B07-A064-4D58-938A-EA8AA656770B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
