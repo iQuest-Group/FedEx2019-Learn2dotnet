@@ -4,11 +4,18 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 
-namespace Learn2DotNet.Devices.Application
+namespace Learn2DotNet.Devices.Domain
 {
     public class SocketListener
     {
         public static ManualResetEvent AllDone = new ManualResetEvent(false);
+        private int port { get; set; }
+    
+
+        public SocketListener(int port)
+        {
+            this.port = port;
+        }
 
         public void StartListening()
         {
@@ -17,7 +24,7 @@ namespace Learn2DotNet.Devices.Application
             // running the listener is "host.contoso.com".  
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 16000);
+            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
 
             // Create a TCP/IP socket.  
             Socket listener = new Socket(ipAddress.AddressFamily,

@@ -24,7 +24,7 @@ namespace Learn2DotNet.Devices.InMemoryDal
 
             if (string.IsNullOrEmpty(device.Name))
             {
-                throw  new ArgumentException(nameof(device.Name));
+                throw new ArgumentException(nameof(device.Name));
             }
 
             Devices.Add(device);
@@ -47,6 +47,7 @@ namespace Learn2DotNet.Devices.InMemoryDal
 
             dbDevice.Name = device.Name;
             dbDevice.DeviceState = device.DeviceState;
+            dbDevice.AllowPairing = device.AllowPairing;
         }
 
         public void Delete(Guid deviceId)
@@ -61,7 +62,7 @@ namespace Learn2DotNet.Devices.InMemoryDal
 
             if (dbBadge == null)
             {
-                throw new ArgumentNullException(nameof(dbBadge),"The device does not exist");
+                throw new ArgumentNullException(nameof(dbBadge), "The device does not exist");
             }
 
             Devices.Remove(dbBadge);

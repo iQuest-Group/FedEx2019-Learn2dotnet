@@ -1,19 +1,27 @@
 ﻿using System;
 using Learn2DotNet.Devices.Domain.Model;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Learn2DotNet.Devices
 {
     public class DevicesViewModel
     {
-        public ConnectCommand ConnectCommand { get; } = new ConnectCommand();
+        public CreateCommand CreateCommand { get; } = new CreateCommand();
 
-        public List<Device> Devices { get; set; } = new List<Device>();
+        public List<DeviceViewModel> Devices { get; set; }
 
         public DevicesViewModel()
         {
-            Devices.Add(new Device {Name = "Aspirator 1", Id = new Guid(), DeviceState = DeviceState.Active});
-            Devices.Add(new Device {Name = "Aspirator 2", Id = new Guid(), DeviceState = DeviceState.Inactive});
+            List<Device> devices = new List<Device>
+            {
+                new Device(16000) { Name = "Aspirator 1", Id = Guid.NewGuid(), DeviceState = DeviceState.Active },
+                new Device(16001) { Name = "Aspirator 2", Id = Guid.NewGuid(), DeviceState = DeviceState.Inactive }
+            };
+
+            Devices = devices
+                .Select(x => new DeviceViewModel(x))
+                .ToList();
         }
     }
 }

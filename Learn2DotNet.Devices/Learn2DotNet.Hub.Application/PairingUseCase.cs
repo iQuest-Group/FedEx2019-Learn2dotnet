@@ -19,12 +19,11 @@ namespace Learn2DotNet.Hub.Application
         {
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
             IPAddress ipAddress = ipHostInfo.AddressList[0];
-            ipAddress = IPAddress.Parse(localHost);
 
-            for (int port = 16000; port < 16100; port++)
-            {
-                Task task = Task.Run(() => SendToDevice(ipAddress, port));
-            }
+            //for (int port = 16000; port <= 16000; port++)
+            
+                Task task = Task.Run(() => SendToDevice(ipAddress, 16000));
+            
         }
 
         private void SendToDevice(IPAddress ipAddress, int port)
@@ -36,7 +35,7 @@ namespace Learn2DotNet.Hub.Application
             client.BeginConnect(endPoint, ConnectCallback, client);
             connectDone.WaitOne();
 
-            Send(client, "Hello from hub!");
+            Send(client, "Ping!<EOF>");
             sendDone.WaitOne();
 
             Receive(client);

@@ -1,5 +1,5 @@
 ﻿<Window
-    x:Class="Learn2DotNet.Devices.MainWindow"
+    x:Class="Learn2DotNet.Devices.DevicesWindow"
     
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -17,10 +17,10 @@
         <DockPanel Margin="20">
             <ItemsControl ItemsSource="{Binding Devices}" BorderThickness="2" BorderBrush="DarkGray">
                 <ItemsControl.ItemTemplate>
-                    <DataTemplate>
+                    <DataTemplate d:DataContext="{d:DesignInstance local:DeviceViewModel}">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,2,0,2">
                             <TextBlock
-                                Text="{Binding Name}"
+                                Text="{Binding DeviceName}"
                                 VerticalAlignment="Center"
                                 MinWidth="400"
                                 MaxWidth="400"
@@ -37,7 +37,8 @@
                             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
                             <Button 
                                 Content="Pair"
-                                Margin="10,0,10,0"/>
+                                Margin="10,0,10,0"
+                                Command ="{Binding PairingCommand}"/>
                             <!--<Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"/>
                             <TextBlock 
                                 Text="Status" 

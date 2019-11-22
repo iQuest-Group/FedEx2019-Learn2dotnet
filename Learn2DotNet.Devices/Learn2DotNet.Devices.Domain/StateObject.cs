@@ -1,7 +1,7 @@
 ﻿using System.Net.Sockets;
 using System.Text;
 
-namespace Learn2DotNet.Devices.Application
+namespace Learn2DotNet.Devices.Domain
 {
     // State object for reading client data asynchronously  
     public class StateObject
