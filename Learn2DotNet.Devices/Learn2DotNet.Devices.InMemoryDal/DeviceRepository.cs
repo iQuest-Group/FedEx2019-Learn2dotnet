@@ -47,7 +47,6 @@ namespace Learn2DotNet.Devices.InMemoryDal
 
             dbDevice.Name = device.Name;
             dbDevice.DeviceState = device.DeviceState;
-            dbDevice.AllowPairing = device.AllowPairing;
         }
 
         public void Delete(Guid deviceId)

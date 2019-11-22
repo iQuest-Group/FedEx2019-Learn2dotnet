@@ -3,14 +3,28 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using Learn2DotNet.Devices.Domain.Model;
 
 namespace Learn2DotNet.Devices.Domain
 {
     public class SocketListener
     {
         public static ManualResetEvent AllDone = new ManualResetEvent(false);
-        private int port { get; set; }
-    
+        private static PairingStatus pairingStatus = PairingStatus.Off;
+        private int port { get; }
+        public event EventHandler PairingStatusChanged;
+
+        public PairingStatus PairingStatus
+        {
+            get => pairingStatus;
+            private set
+            {
+                pairingStatus = value;
+                OnPairingStatusChanged();
+            }
+        }
+
 
         public SocketListener(int port)
         {
@@ -19,49 +33,51 @@ namespace Learn2DotNet.Devices.Domain
 
         public void StartListening()
         {
-            // Establish the local endpoint for the socket.  
-            // The DNS name of the computer  
-            // running the listener is "host.contoso.com".  
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
-            IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
+            PairingStatus = PairingStatus.On;
 
-            // Create a TCP/IP socket.  
-            Socket listener = new Socket(ipAddress.AddressFamily,
-                SocketType.Stream, ProtocolType.Tcp);
-
-            // Bind the socket to the local endpoint and listen for incoming connections.  
-            try
+            Task.Run(() =>
             {
-                listener.Bind(localEndPoint);
-                listener.Listen(100);
-                listener.ReceiveTimeout = 30000;
 
-                while (true)
+                // Establish the local endpoint for the socket.  
+                // The DNS name of the computer  
+                // running the listener is "host.contoso.com".  
+                IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+                //IPAddress ipAddress = ipHostInfo.AddressList[0];
+                IPAddress ipAddress = IPAddress.Any;
+                IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
+
+                // Create a TCP/IP socket.  
+                Socket listener = new Socket(ipAddress.AddressFamily,
+                    SocketType.Stream, ProtocolType.Tcp);
+
+                // Bind the socket to the local endpoint and listen for incoming connections.  
+                try
                 {
-                    // Set the event to nonsignaled state.  
-                    AllDone.Reset();
+                    listener.Bind(localEndPoint);
+                    listener.Listen(100);
+                    listener.ReceiveTimeout = 30000;
 
-                    // Start an asynchronous socket to listen for connections.  
-                    Console.WriteLine("Waiting for a connection...");
-                    listener.BeginAccept(
-                        new AsyncCallback(AcceptCallback),
-                        listener);
+                    while (true)
+                    {
+                        // Set the event to nonsignaled state.  
+                        AllDone.Reset();
 
-                    // Wait until a connection is made before continuing.  
-                    AllDone.WaitOne();
+                        // Start an asynchronous socket to listen for connections.  
+                        listener.BeginAccept(AcceptCallback, listener);
+
+                        // Wait until a connection is made before continuing.  
+                        AllDone.WaitOne();
+                    }
                 }
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-            }
+                catch (Exception e)
+                {
+                    
+                }
 
-            Console.WriteLine("\nPress ENTER to continue...");
-            Console.Read();
+            });
         }
 
-        public static void AcceptCallback(IAsyncResult ar)
+        public void AcceptCallback(IAsyncResult ar)
         {
             // Signal the main thread to continue.  
             AllDone.Set();
@@ -69,6 +85,7 @@ namespace Learn2DotNet.Devices.Domain
             // Get the socket that handles the client request.  
             Socket listener = (Socket)ar.AsyncState;
             Socket handler = listener.EndAccept(ar);
+            PairingStatus = PairingStatus.Off;
 
             // Create the state object.  
             StateObject state = new StateObject
@@ -146,6 +163,11 @@ namespace Learn2DotNet.Devices.Domain
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        protected virtual void OnPairingStatusChanged()
+        {
+            PairingStatusChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

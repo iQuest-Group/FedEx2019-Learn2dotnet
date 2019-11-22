@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Net;
-using System.Threading.Tasks;
 using System.Windows.Input;
-using Learn2DotNet.Devices.Application;
 using Learn2DotNet.Devices.Application.Devices.CreateDevice;
-using Learn2DotNet.Devices.Domain;
 using Learn2DotNet.Devices.Domain.Model;
 using Learn2DotNet.Devices.InMemoryDal;
 
@@ -28,8 +24,7 @@ namespace Learn2DotNet.Devices
                 {
                     Id = Guid.NewGuid(),
                     Name = "Aspirator",
-                    DeviceState = DeviceState.Active,
-                    AllowPairing = false
+                    DeviceState = DeviceState.Active
                 }
             };
 

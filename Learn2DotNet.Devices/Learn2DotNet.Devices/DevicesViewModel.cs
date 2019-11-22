@@ -7,8 +7,6 @@ namespace Learn2DotNet.Devices
 {
     public class DevicesViewModel
     {
-        public CreateCommand CreateCommand { get; } = new CreateCommand();
-
         public List<DeviceViewModel> Devices { get; set; }
 
         public DevicesViewModel()

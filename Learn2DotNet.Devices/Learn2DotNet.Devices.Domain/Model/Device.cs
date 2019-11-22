@@ -7,24 +7,27 @@ namespace Learn2DotNet.Devices.Domain.Model
         public Guid Id { get; set; }
         public string Name { get; set; }
         public DeviceState DeviceState { get; set; }
-        public bool AllowPairing { get; set; }
+
+        public PairingStatus PairingStatus => socketListener.PairingStatus;
 
         private readonly SocketListener socketListener;
+
+        public event EventHandler PairingStatusChanged;
 
         public Device(int port)
         {
             socketListener = new SocketListener(port);
+            socketListener.PairingStatusChanged += HandlePairingStatusChanged;
+        }
+
+        private void HandlePairingStatusChanged(object sender, EventArgs e)
+        {
+            OnPairingStatusChanged();
         }
 
         public void EnablePairing()
         {
-            AllowPairing = true;
             socketListener.StartListening();
-        }
-
-        public void DisablePairing()
-        {
-            AllowPairing = false;
         }
 
         public override bool Equals(object obj)
@@ -36,8 +39,7 @@ namespace Learn2DotNet.Devices.Domain.Model
 
             return Id == device.Id
                    && Name == device.Name
-                   && DeviceState == device.DeviceState
-                   && AllowPairing == device.AllowPairing;
+                   && DeviceState == device.DeviceState;
         }
 
         public override int GetHashCode()
@@ -48,9 +50,13 @@ namespace Learn2DotNet.Devices.Domain.Model
                 hash = hash * 23 + Id.GetHashCode();
                 hash = hash * 23 + Name.GetHashCode();
                 hash = hash * 23 + DeviceState.GetHashCode();
-                hash = hash * 23 + AllowPairing.GetHashCode();
                 return hash;
             }
+        }
+
+        protected virtual void OnPairingStatusChanged()
+        {
+            PairingStatusChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 }

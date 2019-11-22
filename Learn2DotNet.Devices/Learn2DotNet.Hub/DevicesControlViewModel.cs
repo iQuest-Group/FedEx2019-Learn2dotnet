@@ -3,6 +3,7 @@ using Learn2DotNet.Hub.Domain.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using System.Windows.Threading;
 using Learn2DotNet.Hub.Domain;
 
 namespace Learn2DotNet.Hub
@@ -10,6 +11,7 @@ namespace Learn2DotNet.Hub
     public class DevicesControlViewModel
     {
         private readonly DeviceRepository deviceRepository;
+        private Dispatcher dispatcher;
 
         public ObservableCollection<Device> Devices { get; set; } = new ObservableCollection<Device>();
 
@@ -23,11 +25,13 @@ namespace Learn2DotNet.Hub
             app.DevicesChanged += HandleDevicesChanged;
 
             UpdateDevicesList();
+
+            dispatcher = Dispatcher.CurrentDispatcher;
         }
 
         private void HandleDevicesChanged(object sender, EventArgs e)
         {
-            UpdateDevicesList();
+            dispatcher.Invoke(UpdateDevicesList);
         }
 
         private void UpdateDevicesList()

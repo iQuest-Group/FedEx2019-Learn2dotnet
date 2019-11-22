@@ -21,7 +21,8 @@ namespace Learn2DotNet.Hub.Application
         public void Start()
         {
             IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            //IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPAddress ipAddress = IPAddress.Loopback;
 
             //for (int port = 16000; port < 16100; port++)
 
@@ -82,8 +83,8 @@ namespace Learn2DotNet.Hub.Application
                 {
                     response = state.StringBuilder.ToString();
                 }
-                receiveDone.Set();
             }
+            receiveDone.Set();
         }
 
         private static void Send(Socket client, String data)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using Learn2DotNet.Devices.Domain.Model;
 
 namespace Learn2DotNet.Devices
@@ -17,27 +16,5 @@ namespace Learn2DotNet.Devices
             DeviceName = device.Name;
             PairingCommand = new PairingCommand(device);
         }
-    }
-
-    internal class PairingCommand : ICommand
-    {
-        private readonly Device device;
-
-        public PairingCommand(Device device)
-        {
-            this.device = device;
-        }
-
-        public bool CanExecute(object parameter)
-        {
-            return true;
-        }
-
-        public void Execute(object parameter)
-        {
-            device.EnablePairing();
-        }
-
-        public event EventHandler CanExecuteChanged;
     }
 }
