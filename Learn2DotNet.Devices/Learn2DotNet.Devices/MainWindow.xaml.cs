@@ -1,17 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
 
 namespace Learn2DotNet.Devices
 {
@@ -23,6 +10,19 @@ namespace Learn2DotNet.Devices
         public MainWindow()
         {
             InitializeComponent();
+
+            DataContext = new MainViewModel();
+            // GetAutofacContainer();
         }
+
+        /*private static void GetAutofacContainer()
+        {
+            ContainerBuilder builder = new ContainerBuilder();
+
+            builder.RegisterType<Learn2DotNetDevicesRequestBus>().As<IRequestBus>();
+            builder.RegisterType<AutofacRequestHandlerFactory>().As<IRequestHandlerFactory>();
+            builder.RegisterType<DeviceRepository>().As<IDeviceRepository>();
+            builder.Build();
+        }*/
     }
 }

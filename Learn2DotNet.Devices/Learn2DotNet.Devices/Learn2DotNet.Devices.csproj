@@ -6,4 +6,15 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="4.9.4" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="5.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Learn2DotNet.Devices.Application\Learn2DotNet.Devices.Application.csproj" />
+    <ProjectReference Include="..\Learn2DotNet.Devices.Domain\Learn2DotNet.Devices.Domain.csproj" />
+    <ProjectReference Include="..\Learn2DotNet.Devices.InMemoryDal\Learn2DotNet.Devices.InMemoryDal.csproj" />
+  </ItemGroup>
+
 </Project>
