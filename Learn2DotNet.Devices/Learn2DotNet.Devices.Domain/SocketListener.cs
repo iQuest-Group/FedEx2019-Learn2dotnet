@@ -10,9 +10,13 @@ namespace Learn2DotNet.Devices.Domain
 {
     public class SocketListener
     {
-        public static ManualResetEvent AllDone = new ManualResetEvent(false);
-        private static PairingStatus pairingStatus = PairingStatus.Off;
-        private int port { get; }
+        public ManualResetEvent SendDone = new ManualResetEvent(false);
+
+        private PairingStatus pairingStatus = PairingStatus.Off;
+
+        private readonly int port;
+        private readonly Device device;
+
         public event EventHandler PairingStatusChanged;
 
         public PairingStatus PairingStatus
@@ -26,9 +30,13 @@ namespace Learn2DotNet.Devices.Domain
         }
 
 
-        public SocketListener(int port)
+        public SocketListener(int port, Device device)
         {
+            if (port <= 0)
+                throw new ArgumentOutOfRangeException(nameof(port));
+
             this.port = port;
+            this.device = device ?? throw new ArgumentNullException(nameof(device));
         }
 
         public Task StartListening()
@@ -37,115 +45,119 @@ namespace Learn2DotNet.Devices.Domain
 
             return Task.Run(() =>
             {
-
-                // Establish the local endpoint for the socket.  
-                // The DNS name of the computer  
-                // running the listener is "host.contoso.com".  
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                //IPAddress ipAddress = ipHostInfo.AddressList[0];
-                IPAddress ipAddress = IPAddress.Any;
-                IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
-
-                // Create a TCP/IP socket.  
-                Socket listener = new Socket(ipAddress.AddressFamily,
-                    SocketType.Stream, ProtocolType.Tcp);
-
-                // Bind the socket to the local endpoint and listen for incoming connections.  
                 try
                 {
+                    IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+                    //IPAddress ipAddress = ipHostInfo.AddressList[0];
+                    IPAddress ipAddress = IPAddress.Any;
+                    IPEndPoint localEndPoint = new IPEndPoint(ipAddress, port);
+
+                    Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
                     listener.Bind(localEndPoint);
                     listener.Listen(100);
-                    listener.ReceiveTimeout = 30000;
+                    listener.ReceiveTimeout = 20000;
+                    listener.SendTimeout = 20000;
 
-                    while (true)
+                    SendDone.Reset();
+
+                    try
                     {
-                        // Set the event to nonsignaled state.  
-                        AllDone.Reset();
+                        Socket handler = listener.Accept();
 
-                        // Start an asynchronous socket to listen for connections.  
-                        listener.BeginAccept(AcceptCallback, listener);
+                        try
+                        {
+                            byte[] bytes = new byte[1024];
+                            string data = null;
 
-                        // Wait until a connection is made before continuing.  
-                        AllDone.WaitOne();
+                            int bytesRec = handler.Receive(bytes);
+                            data += Encoding.ASCII.GetString(bytes, 0, bytesRec);
+
+                            if (data == "ping")
+                            {
+                                Send(handler, device.Name);
+                                SendDone.WaitOne();
+                            }
+
+                            handler.Shutdown(SocketShutdown.Both);
+                        }
+                        finally
+                        {
+                            handler.Close();
+                            handler.Dispose();
+                        }
+                    }
+                    finally
+                    {
+                        listener.Close();
+                        listener.Dispose();
                     }
                 }
-                catch (Exception e)
+                finally
                 {
-                    
+                    PairingStatus = PairingStatus.Off;
                 }
-
             });
         }
 
-        public void AcceptCallback(IAsyncResult ar)
-        {
-            // Signal the main thread to continue.  
-            AllDone.Set();
+        //public void AcceptCallback(IAsyncResult ar)
+        //{
+        //    Socket listener = (Socket)ar.AsyncState;
+        //    Socket handler = listener.EndAccept(ar);
+        //    PairingStatus = PairingStatus.Off;
 
-            // Get the socket that handles the client request.  
-            Socket listener = (Socket)ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
-            PairingStatus = PairingStatus.Off;
+        //    StateObject state = new StateObject
+        //    {
+        //        WorkSocket = handler
+        //    };
 
-            // Create the state object.  
-            StateObject state = new StateObject
-            {
-                WorkSocket = handler
-            };
-            handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0,
-                new AsyncCallback(ReadCallback), state);
-        }
+        //    handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, ReadCallback, state);
+        //}
 
-        public static void ReadCallback(IAsyncResult ar)
-        {
-            string content = string.Empty;
+        //public static void ReadCallback(IAsyncResult ar)
+        //{
+        //    // Retrieve the state object and the handler socket  
+        //    // from the asynchronous state object.  
+        //    StateObject state = (StateObject)ar.AsyncState;
+        //    Socket handler = state.WorkSocket;
 
-            // Retrieve the state object and the handler socket  
-            // from the asynchronous state object.  
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.WorkSocket;
+        //    // Read data from the client socket.   
+        //    int bytesRead = handler.EndReceive(ar);
 
-            // Read data from the client socket.   
-            int bytesRead = handler.EndReceive(ar);
+        //    if (bytesRead > 0)
+        //    {
+        //        // There  might be more data, so store the data received so far.  
+        //        state.StringBuilder.Append(Encoding.ASCII.GetString(state.Buffer, 0, bytesRead));
 
-            if (bytesRead > 0)
-            {
-                // There  might be more data, so store the data received so far.  
-                state.StringBuilder.Append(Encoding.ASCII.GetString(
-                    state.Buffer, 0, bytesRead));
+        //        // Check for end-of-file tag. If it is not there, read   
+        //        // more data.  
+        //        string content = state.StringBuilder.ToString();
+        //        if (content.IndexOf("<EOF>") > -1)
+        //        {
+        //            // All the data has been read from the   
+        //            // client. Display it on the console.  
+        //            Console.WriteLine("Read {0} bytes from socket. \n Data : {1}", content.Length, content);
+        //            // Echo the data back to the client.  
+        //            Send(handler, content);
+        //        }
+        //        else
+        //        {
+        //            // Not all data received. Get more.  
+        //            handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, ReadCallback, state);
+        //        }
+        //    }
+        //}
 
-                // Check for end-of-file tag. If it is not there, read   
-                // more data.  
-                content = state.StringBuilder.ToString();
-                if (content.IndexOf("<EOF>") > -1)
-                {
-                    // All the data has been read from the   
-                    // client. Display it on the console.  
-                    Console.WriteLine("Read {0} bytes from socket. \n Data : {1}",
-                        content.Length, content);
-                    // Echo the data back to the client.  
-                    Send(handler, content);
-                }
-                else
-                {
-                    // Not all data received. Get more.  
-                    handler.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0,
-                        new AsyncCallback(ReadCallback), state);
-                }
-            }
-        }
-
-        private static void Send(Socket handler, string data)
+        private void Send(Socket handler, string data)
         {
             // Convert the string data to byte data using ASCII encoding.  
             byte[] byteData = Encoding.ASCII.GetBytes(data);
 
             // Begin sending the data to the remote device.  
-            handler.BeginSend(byteData, 0, byteData.Length, 0,
-                new AsyncCallback(SendCallback), handler);
+            handler.BeginSend(byteData, 0, byteData.Length, 0, SendCallback, handler);
         }
 
-        private static void SendCallback(IAsyncResult ar)
+        private void SendCallback(IAsyncResult ar)
         {
             try
             {
@@ -155,13 +167,14 @@ namespace Learn2DotNet.Devices.Domain
                 // Complete sending the data to the remote device.  
                 int bytesSent = handler.EndSend(ar);
                 Console.WriteLine("Sent {0} bytes to client.", bytesSent);
-
-                handler.Shutdown(SocketShutdown.Both);
-                handler.Close();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.ToString());
+            }
+            finally
+            {
+                SendDone.Set();
             }
         }
 

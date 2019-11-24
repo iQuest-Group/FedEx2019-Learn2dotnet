@@ -3,7 +3,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Learn2DotNet.Hub.Domain;
 using Learn2DotNet.Hub.Domain.Models;
 
@@ -11,54 +10,86 @@ namespace Learn2DotNet.Hub.Application
 {
     public class SocketClient
     {
+        private readonly IPAddress ipAddress;
+        private readonly int port;
+
         private static ManualResetEvent connectDone = new ManualResetEvent(false);
         private static ManualResetEvent sendDone = new ManualResetEvent(false);
         private static ManualResetEvent receiveDone = new ManualResetEvent(false);
-        private static string response = string.Empty;
+
+        private string response = string.Empty;
 
         public event EventHandler DevicesChanged;
 
-        public void Start()
+        //private void Start()
+        //{
+        //    IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+        //    //IPAddress ipAddress = ipHostInfo.AddressList[0];
+        //    IPAddress ipAddress = IPAddress.Loopback;
+
+        //    //for (int port = 16000; port < 16100; port++)
+
+        //    SendToDevice(ipAddress, 16000);
+
+        //}
+
+        public SocketClient(IPAddress ipAddress, int port)
         {
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            //IPAddress ipAddress = ipHostInfo.AddressList[0];
-            IPAddress ipAddress = IPAddress.Loopback;
-
-            //for (int port = 16000; port < 16100; port++)
-
-            Task task = Task.Run(() => SendToDevice(ipAddress, 16000));
-
+            this.ipAddress = ipAddress;
+            this.port = port;
         }
 
-        private void SendToDevice(IPAddress ipAddress, int port)
+        public void SendToDevice()
         {
-            IPEndPoint endPoint = new IPEndPoint(ipAddress, port);
+            connectDone.Reset();
+            sendDone.Reset();
+            receiveDone.Reset();
 
             Socket client = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            client.ReceiveTimeout = 20000;
+            client.SendTimeout = 20000;
 
-            client.BeginConnect(endPoint, ConnectCallback, client);
-            connectDone.WaitOne();
-
-            Send(client, "Ping!<EOF>");
-            sendDone.WaitOne();
-
-            Receive(client);
-            receiveDone.WaitOne();
-
-            // Add the new device in repo
-            DeviceRepository repository = new DeviceRepository();
-            repository.Add(new Device
+            try
             {
-                Name = "new device"
-            });
+                IPEndPoint endPoint = new IPEndPoint(ipAddress, port);
+                client.BeginConnect(endPoint, ConnectCallback, client);
+                connectDone.WaitOne();
 
-            OnDevicesChanged();
+                if (!client.Connected)
+                    return;
 
-            client.Shutdown(SocketShutdown.Both);
-            client.Close();
+                Send(client, "ping");
+                sendDone.WaitOne();
+
+                Receive(client);
+                receiveDone.WaitOne();
+
+                // Add the new device in repo
+                if (!string.IsNullOrEmpty(response))
+                {
+                    DeviceRepository repository = new DeviceRepository();
+
+                    Device device = new Device
+                    {
+                        Name = response
+                    };
+
+                    repository.Add(device);
+
+                    OnDevicesChanged();
+                }
+
+                client.Shutdown(SocketShutdown.Both);
+            }
+            catch { }
+            finally
+            {
+                client.Close();
+                client.Dispose();
+            }
         }
 
-        private static void Receive(Socket client)
+        private void Receive(Socket client)
         {
             StateObject state = new StateObject();
             state.WorkSocket = client;
@@ -66,7 +97,7 @@ namespace Learn2DotNet.Hub.Application
             client.BeginReceive(state.Buffer, 0, StateObject.BufferSize, 0, ReceiveCallback, state);
         }
 
-        private static void ReceiveCallback(IAsyncResult ar)
+        private void ReceiveCallback(IAsyncResult ar)
         {
             StateObject state = (StateObject)ar.AsyncState;
             Socket client = state.WorkSocket;
@@ -83,11 +114,12 @@ namespace Learn2DotNet.Hub.Application
                 {
                     response = state.StringBuilder.ToString();
                 }
+
+                receiveDone.Set();
             }
-            receiveDone.Set();
         }
 
-        private static void Send(Socket client, String data)
+        private static void Send(Socket client, string data)
         {
             byte[] byteData = Encoding.ASCII.GetBytes(data);
             client.BeginSend(byteData, 0, byteData.Length, 0, SendCallback, client);
@@ -96,7 +128,13 @@ namespace Learn2DotNet.Hub.Application
         private static void ConnectCallback(IAsyncResult ar)
         {
             Socket client = (Socket)ar.AsyncState;
-            client.EndConnect(ar);
+
+            try
+            {
+                client.EndConnect(ar);
+            }
+            catch { }
+
             connectDone.Set();
         }
 
@@ -111,13 +149,5 @@ namespace Learn2DotNet.Hub.Application
         {
             DevicesChanged?.Invoke(this, EventArgs.Empty);
         }
-    }
-
-    public class StateObject
-    {
-        public Socket WorkSocket = null;
-        public const int BufferSize = 256;
-        public byte[] Buffer = new byte[BufferSize];
-        public StringBuilder StringBuilder = new StringBuilder();
     }
 }

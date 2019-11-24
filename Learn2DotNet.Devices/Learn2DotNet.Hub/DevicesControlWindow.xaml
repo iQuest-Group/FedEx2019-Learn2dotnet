@@ -8,7 +8,7 @@
     xmlns:local="clr-namespace:Learn2DotNet.Hub"
     
     mc:Ignorable="d"
-    Title="Learn2DotNet Hub - Devices"
+    Title="Devices Emulator"
     Height="500"
     Width="900"
     d:DataContext="{d:DesignInstance local:DevicesControlViewModel}"

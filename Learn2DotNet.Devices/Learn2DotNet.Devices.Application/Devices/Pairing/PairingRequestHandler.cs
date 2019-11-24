@@ -12,7 +12,7 @@ namespace Learn2DotNet.Devices.Application.Devices.Pairing
         {
             Device device = request.Device;
 
-            SocketListener socketListener = new SocketListener(device.Port);
+            SocketListener socketListener = new SocketListener(device.Port, device);
             socketListener.PairingStatusChanged += HandlePairingStatusChanged;
             return socketListener.StartListening();
         }

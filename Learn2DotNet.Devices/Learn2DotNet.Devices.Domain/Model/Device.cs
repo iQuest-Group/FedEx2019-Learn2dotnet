@@ -21,7 +21,7 @@ namespace Learn2DotNet.Devices.Domain.Model
         public Device(int port)
         {
             this.Port = port;
-            socketListener = new SocketListener(port);
+            socketListener = new SocketListener(port, this);
             socketListener.PairingStatusChanged += HandlePairingStatusChanged;
         }
 
