@@ -8,7 +8,16 @@ namespace Learn2DotNet.Devices.InMemoryDal
 {
     public class DeviceRepository : IDeviceRepository
     {
-        private static readonly List<Device> Devices = new List<Device>();
+        private static readonly List<Device> Devices;
+
+        static DeviceRepository()
+        {
+            Devices = new List<Device>
+            {
+                new Device(16000) { Name = "Aspirator 1", Id = Guid.NewGuid(), DeviceState = DeviceState.Active },
+                new Device(16001) { Name = "Aspirator 2", Id = Guid.NewGuid(), DeviceState = DeviceState.Inactive }
+            };
+        }
 
         public List<Device> GetAll()
         {

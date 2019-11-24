@@ -4,8 +4,12 @@ namespace Learn2DotNet.Devices.Domain.Model
 {
     public class Device
     {
+        public int Port { get; }
+
         public Guid Id { get; set; }
+
         public string Name { get; set; }
+
         public DeviceState DeviceState { get; set; }
 
         public PairingStatus PairingStatus => socketListener.PairingStatus;
@@ -16,6 +20,7 @@ namespace Learn2DotNet.Devices.Domain.Model
 
         public Device(int port)
         {
+            this.Port = port;
             socketListener = new SocketListener(port);
             socketListener.PairingStatusChanged += HandlePairingStatusChanged;
         }

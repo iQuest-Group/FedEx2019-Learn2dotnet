@@ -2,17 +2,23 @@
 using System.Windows.Input;
 using System.Windows.Threading;
 using Learn2DotNet.Devices.Domain.Model;
+using Learn2DotNet.Devices.Domain.RequestBusModel;
 
-namespace Learn2DotNet.Devices
+namespace Learn2DotNet.Devices.Commands
 {
     public class PairingCommand : ICommand
     {
         private readonly Device device;
+        private readonly IRequestBus requestBus;
         private readonly Dispatcher dispatcher;
 
-        public PairingCommand(Device device)
+        public event EventHandler CanExecuteChanged;
+
+        public PairingCommand(IRequestBus requestBus, Device device)
         {
             this.device = device;
+            this.requestBus = requestBus ?? throw new ArgumentNullException(nameof(requestBus));
+
             device.PairingStatusChanged += HandlePairingStatusChanged;
             dispatcher = Dispatcher.CurrentDispatcher;
         }
@@ -29,10 +35,14 @@ namespace Learn2DotNet.Devices
 
         public void Execute(object parameter)
         {
+            //PairingRequest pairingRequest = new PairingRequest
+            //{
+            //    Device = device
+            //};
+            //requestBus.ProcessRequest(pairingRequest);
+
             device.EnablePairing();
         }
-
-        public event EventHandler CanExecuteChanged;
 
         protected virtual void OnCanExecuteChanged()
         {

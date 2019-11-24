@@ -4,10 +4,12 @@ using Learn2DotNet.Devices.Application.Devices.CreateDevice;
 using Learn2DotNet.Devices.Domain.Model;
 using Learn2DotNet.Devices.InMemoryDal;
 
-namespace Learn2DotNet.Devices
+namespace Learn2DotNet.Devices.Commands
 {
     public class CreateCommand : ICommand
     {
+        public event EventHandler CanExecuteChanged;
+
         public bool CanExecute(object parameter)
         {
             return true;
@@ -18,6 +20,7 @@ namespace Learn2DotNet.Devices
             CreateDeviceRequestHandler deviceHandler = new CreateDeviceRequestHandler(new DeviceRepository());
             Random random = new Random();
             int port = random.Next(16000, 16100);
+
             CreateDeviceRequest request = new CreateDeviceRequest()
             {
                 Device = new Device(port)
@@ -30,7 +33,5 @@ namespace Learn2DotNet.Devices
 
             deviceHandler.Handle(request).Wait();
         }
-
-        public event EventHandler CanExecuteChanged;
     }
 }

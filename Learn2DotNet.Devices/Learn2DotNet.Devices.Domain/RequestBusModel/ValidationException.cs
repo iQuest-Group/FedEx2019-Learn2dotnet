@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Learn2DotNet.Devices.Domain.Exceptions
+namespace Learn2DotNet.Devices.Domain.RequestBusModel
 {
     public class ValidationException : Exception
     {

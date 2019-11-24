@@ -1,4 +1,5 @@
 ﻿using Learn2DotNet.Devices.Application.Devices.CreateDevice;
+using Learn2DotNet.Devices.Application.Devices.Pairing;
 using Learn2DotNet.Devices.Domain.RequestBusModel;
 
 namespace Learn2DotNet.Devices.Application
@@ -11,6 +12,7 @@ namespace Learn2DotNet.Devices.Application
             : base(handlerFactory)
         {
             Register<CreateDeviceRequest, CreateDeviceRequestHandler>();
+            Register<PairingRequest, PairingRequestHandler>();
         }
     }
 }

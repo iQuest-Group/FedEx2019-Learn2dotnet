@@ -31,11 +31,11 @@ namespace Learn2DotNet.Devices.Domain
             this.port = port;
         }
 
-        public void StartListening()
+        public Task StartListening()
         {
             PairingStatus = PairingStatus.On;
 
-            Task.Run(() =>
+            return Task.Run(() =>
             {
 
                 // Establish the local endpoint for the socket.  

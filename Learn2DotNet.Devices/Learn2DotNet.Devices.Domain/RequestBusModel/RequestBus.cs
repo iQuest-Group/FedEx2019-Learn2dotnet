@@ -73,16 +73,12 @@ namespace Learn2DotNet.Devices.Domain.RequestBusModel
 
             Type requestHandlerType = handlers[requestType];
 
-            if (requestHandlerFactory.Create(requestHandlerType) is IRequestHandlerWithoutResponse<TRequest> requestHandlerWithoutResponse)
-            {
+            object requestHandler = requestHandlerFactory.Create(requestHandlerType);
+
+            if (requestHandler is IRequestHandlerWithoutResponse<TRequest> requestHandlerWithoutResponse)
                 await requestHandlerWithoutResponse.Handle(request);
-            }
-
-            else if (requestHandlerFactory.Create(requestHandlerType) is IRequestHandlerWithResponse<TRequest, object> requestHandlerWithResponse)
-            {
+            else if (requestHandler is IRequestHandlerWithResponse<TRequest, object> requestHandlerWithResponse)
                 await requestHandlerWithResponse.Handle(request);
-            }
-
             else throw new UnusableRequestHandlerException();
         }
     }
