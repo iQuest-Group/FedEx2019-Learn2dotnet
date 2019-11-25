@@ -15,7 +15,12 @@ namespace Learn2DotNet.Devices.InMemoryDal
             Devices = new List<Device>
             {
                 new Device(16000) { Name = "Aspirator 1", Id = Guid.NewGuid(), DeviceState = DeviceState.Active },
-                new Device(16001) { Name = "Aspirator 2", Id = Guid.NewGuid(), DeviceState = DeviceState.Inactive }
+                new Device(16001) { Name = "Aspirator 2", Id = Guid.NewGuid(), DeviceState = DeviceState.Inactive },
+                new Device(16002) { Name = "Bec1", Id = Guid.NewGuid(), DeviceState = DeviceState.Active },
+                new Device(16000) { Name = "Bec2", Id = Guid.NewGuid(), DeviceState = DeviceState.Active },
+                new Device(16001) { Name = "SmartLock", Id = Guid.NewGuid(), DeviceState = DeviceState.Active },
+                new Device(16002) { Name = "Printer", Id = Guid.NewGuid(), DeviceState = DeviceState.Active },
+                new Device(16000) { Name = "Scanner", Id = Guid.NewGuid(), DeviceState = DeviceState.Active }
             };
         }
 
